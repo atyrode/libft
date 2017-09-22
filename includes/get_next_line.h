@@ -5,17 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: atyrode <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/09/22 20:10:26 by atyrode           #+#    #+#             */
-/*   Updated: 2017/09/22 20:10:29 by atyrode          ###   ########.fr       */
+/*   Created: 2017/09/22 20:47:38 by atyrode           #+#    #+#             */
+/*   Updated: 2017/09/22 20:49:21 by atyrode          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_H_
+# define GET_NEXT_LINE_H_
 # include <fcntl.h>
 # include <stdlib.h>
-# include "libft.h"
-# define BUFF_SIZE 1
+# include "./libft/includes/libft.h"
+
+# define BUFF_SIZE 5
 
 int	get_next_line(const int fd, char **line);
 

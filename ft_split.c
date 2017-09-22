@@ -6,7 +6,7 @@
 /*   By: atyrode <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/22 20:04:54 by atyrode           #+#    #+#             */
-/*   Updated: 2017/09/22 20:04:55 by atyrode          ###   ########.fr       */
+/*   Updated: 2017/09/22 20:51:54 by atyrode          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int		ft_count_cases(char *str, char *ref)
 	i = 0;
 	while (str[i] != '\0')
 	{
-		if ((ft_chrsplit(str[i + 1], ref) == 0 || str[i + 1] == '\0') 
+		if ((ft_chrsplit(str[i + 1], ref) == 0 || str[i + 1] == '\0')
 				&& ft_chrsplit(str[i], ref) == 1)
 			counter++;
 		i++;
