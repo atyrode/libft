@@ -6,15 +6,15 @@
 /*   By: atyrode <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/22 20:47:38 by atyrode           #+#    #+#             */
-/*   Updated: 2017/09/22 20:49:21 by atyrode          ###   ########.fr       */
+/*   Updated: 2017/09/22 21:11:04 by atyrode          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H_
-# define GET_NEXT_LINE_H_
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
 # include <fcntl.h>
 # include <stdlib.h>
-# include "./libft/includes/libft.h"
+# include "libft.h"
 
 # define BUFF_SIZE 5
 

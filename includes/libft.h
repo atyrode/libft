@@ -29,7 +29,7 @@ t_list				*ft_lstadd_nb(t_list *lst, int nb,
 void				ft_putchar(char c);
 void				ft_putstr(char *str);
 int					ft_strcmp(char *s1, char *s2);
-size_t				ft_strlen(char *str);
+size_t				ft_strlen(char const *str);
 void				ft_swap(int *a, int *b);
 void				*ft_memset(void *ptr, int value, size_t num);
 void				ft_bzero(void *ptr, size_t num);
