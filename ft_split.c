@@ -3,95 +3,95 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atyrode <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: atyrode <atyrode@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/09/22 20:04:54 by atyrode           #+#    #+#             */
-/*   Updated: 2017/09/22 20:51:54 by atyrode          ###   ########.fr       */
+/*   Updated: 2017/10/07 17:31:56 by atyrode          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_chrsplit(char c, char *ref)
+int		char_is_separator(char c, char *charset)
 {
-	if (ft_strchr(ref, c) != NULL)
+	int	i;
+
+	i = 0;
+	while (charset[i] != '\0')
+	{
+		if (c == charset[i])
+			return (1);
+		i++;
+	}
+	if (c == '\0')
 		return (1);
 	return (0);
 }
 
-int		ft_count_cases(char *str, char *ref)
+int		count_words(char *str, char *charset)
 {
-	int counter;
-	int i;
+	int	i;
+	int	words;
 
-	counter = 0;
+	words = 0;
 	i = 0;
 	while (str[i] != '\0')
 	{
-		if ((ft_chrsplit(str[i + 1], ref) == 0 || str[i + 1] == '\0')
-				&& ft_chrsplit(str[i], ref) == 1)
-			counter++;
+		if (char_is_separator(str[i + 1], charset) == 1
+				&& char_is_separator(str[i], charset) == 0)
+			words++;
 		i++;
 	}
-	if (ft_strchr(ref, str[i - 1]) == NULL)
-		counter++;
-	return (counter);
+	return (words);
 }
 
-char	*ft_copy(char *str, int deb, int l)
+void	write_word(char *dest, char *from, char *charset)
 {
-	char	*res;
+	int	i;
+
+	i = 0;
+	while (char_is_separator(from[i], charset) == 0)
+	{
+		dest[i] = from[i];
+		i++;
+	}
+	dest[i] = '\0';
+}
+
+void	write_split(char **split, char *str, char *charset)
+{
 	int		i;
+	int		j;
+	int		word;
 
+	word = 0;
 	i = 0;
-	res = (char*)malloc(sizeof(char) * (l + 1));
-	if (res == NULL)
-		return (NULL);
-	res[l] = '\0';
-	while (i < l)
-	{
-		res[i] = str[deb + i];
-		i++;
-	}
-	return (res);
-}
-
-char	**ft_fill_tab(char **tab, char *str, char *charset)
-{
-	int i;
-	int len;
-	int tabi;
-
-	i = 0;
-	tabi = 0;
 	while (str[i] != '\0')
 	{
-		len = 0;
-		while (ft_strchr(charset, str[i]) == NULL)
-		{
-			len++;
+		if (char_is_separator(str[i], charset) == 1)
 			i++;
-		}
-		if (ft_strchr(charset, str[i]) != NULL && len > 0)
+		else
 		{
-			tab[tabi] = ft_copy((char*)str, i - len, len);
-			tabi++;
+			j = 0;
+			while (char_is_separator(str[i + j], charset) == 0)
+				j++;
+			split[word] = (char*)malloc(sizeof(char) * (j + 1));
+			write_word(split[word], str + i, charset);
+			i += j;
+			word++;
 		}
-		i++;
 	}
-	return (tab);
 }
 
 char	**ft_split(char *str, char *charset)
 {
-	char	**tab;
+	char	**split;
+	int		words;
 
-	if (str == NULL || charset == NULL)
+	words = count_words(str, charset);
+	if ((split = (char**)malloc(sizeof(char*) * (words + 1))) == NULL)
 		return (NULL);
-	if ((tab = (char**)malloc(sizeof(char*) * ft_count_cases(str, charset) + 1))
-			== NULL)
-		return (NULL);
-	tab[ft_count_cases(str, charset)] = 0;
-	tab = ft_fill_tab(tab, str, charset);
-	return (tab);
+	split[words] = 0;
+	write_split(split, str, charset);
+	return (split);
 }
