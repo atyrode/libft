@@ -16,8 +16,17 @@
 # include <stdlib.h>
 # include "libft.h"
 
-# define BUFF_SIZE 5
+# define BUFF_SIZE 64
+# define FD_SIZE 4096
 
 int	get_next_line(const int fd, char **line);
+
+typedef struct		s_fd
+{
+	int				fd;
+	int				rd;
+	char			*str;
+	struct s_fd		*next;
+}					t_fd;
 
 #endif

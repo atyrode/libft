@@ -3,103 +3,142 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atyrode <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: atyrode  <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/09/22 20:38:32 by atyrode           #+#    #+#             */
-/*   Updated: 2017/09/22 20:45:10 by atyrode          ###   ########.fr       */
+/*   Created: 2019/04/06 22:14:30 by atyrode           #+#    #+#             */
+/*   Updated: 2019/09/17 05:55:42 by atyrode          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "libft.h"
 
-int		ft_strfindchr(char *str, char c)
+static	char	*str_join(char **s1, char *s2)
 {
-	int		i;
-
-	if (c == '\0')
-		return (ft_strlen(str));
-	i = 0;
-	while (str[i] != '\0')
-	{
-		if (str[i] == c)
-			return (i);
-		else
-			i++;
-	}
-	return (-1);
-}
-
-int		ft_transfer_else(char *src, char **dest, int pos, char *tmp)
-{
-	int		i;
+	int			i;
+	int			j;
+	char		*res;
 
 	i = 0;
-	src[pos] = '\0';
-	*dest = ft_strjoin(*dest, src);
-	free(tmp);
-	pos++;
-	while (src[pos] != '\0')
-	{
-		src[i] = src[pos];
+	j = 0;
+	while ((*s1)[i])
 		i++;
-		pos++;
-	}
-	src[i] = '\0';
-	return (1);
-}
-
-int		ft_transfer(char *src, char **dest)
-{
-	int		pos;
-	int		i;
-	char	*tmp;
-
-	i = 0;
-	pos = ft_strfindchr(src, '\n');
-	tmp = *dest;
-	if (pos == -1)
+	while (s2[j])
+		j++;
+	res = (char *)malloc(sizeof(char) * (i + j + 1));
+	j = -1;
+	while ((*s1)[++j])
+		res[j] = (*s1)[j];
+	i = -1;
+	while (s2[++i])
+		res[j++] = s2[i];
+	res[j] = '\0';
+	if (*s1)
 	{
-		*dest = ft_strjoin(*dest, src);
-		free(tmp);
-		src[0] = '\0';
-		return (0);
+		free(*s1);
+		*s1 = NULL;
 	}
-	else
-		return (ft_transfer_else(src, dest, pos, tmp));
+	return (res);
 }
 
-int		normidead(char *buffer, int read_ret, char **line, const int fd)
+static	char	*ft_line(char **s, int len, int i, int j)
 {
-	if (ft_transfer(buffer, line))
+	char		*res;
+	char		*new_s;
+
+	new_s = (char *)malloc(sizeof(char));
+	new_s[0] = '\0';
+	res = (char *)malloc(sizeof(char) * (len + 1));
+	i = -1;
+	while ((*s)[++i] && (*s)[i] != '\n')
+		res[i] = (*s)[i];
+	res[i] = '\0';
+	if ((*s)[++i])
+	{
+		j = i - 1;
+		while ((*s)[i])
+			i++;
+		free(new_s);
+		new_s = (char *)malloc(sizeof(char) * (i + 1));
+		i = 0;
+		while ((*s)[++j])
+			new_s[i++] = (*s)[j];
+		new_s[i] = '\0';
+	}
+	free(*s);
+	*s = new_s;
+	return (res);
+}
+
+static	void	fd_lst(t_fd **head, t_fd **lst, int fd)
+{
+	if (!(*head))
+	{
+		*head = (t_fd *)malloc(sizeof(t_fd));
+		(*head)->fd = fd;
+		(*head)->rd = 1;
+		(*head)->next = NULL;
+		(*head)->str = (char *)malloc(sizeof(char));
+		(*head)->str[0] = '\0';
+	}
+	*lst = *head;
+	while ((*lst)->next && (*lst)->fd != fd)
+	{
+		*lst = (*lst)->next;
+	}
+	if ((*lst)->fd != fd)
+	{
+		(*lst)->next = (t_fd *)malloc(sizeof(t_fd));
+		*lst = (*lst)->next;
+		(*lst)->fd = fd;
+		(*lst)->rd = 1;
+		(*lst)->next = NULL;
+		(*lst)->str = (char *)malloc(sizeof(char));
+		(*lst)->str[0] = '\0';
+	}
+}
+
+static	int		fd_read(int i, char *buff, t_fd **lst, char **line)
+{
+	int rd;
+
+	rd = read((*lst)->fd, buff, BUFF_SIZE);
+	if (rd > 0)
+	{
+		buff[rd] = '\0';
+		(*lst)->str = str_join(&(*lst)->str, buff);
+	}
+	else if (rd == -1)
+		return (-1);
+	if (rd == 0 && (*lst)->str[i] == '\0')
+	{
+		(*lst)->rd = 0;
+		*line = (*lst)->str;
+		if (i == 0)
+			return (0);
 		return (1);
-	while ((read_ret = read(fd, buffer, BUFF_SIZE)) > 0)
-	{
-		buffer[read_ret] = '\0';
-		if (ft_transfer(buffer, line))
-			return (1);
 	}
-	if (read_ret == 0)
-		return (ft_strlen(*line) == 0 ? 0 : 1);
-	free(*line);
-	*line = NULL;
-	return (-1);
+	return (2);
 }
 
-int		get_next_line(const int fd, char **line)
+int				get_next_line(const int fd, char **line)
 {
-	static char		*buffer;
-	static int		current_fd = -1;
-	int				read_ret;
+	static t_fd		*head;
+	t_fd			*lst;
+	char			buff[BUFF_SIZE + 1];
+	int				i;
 
-	read_ret = 0;
-	if (fd < 0 || !line)
-		return (-1);
-	if (!buffer && (buffer = (char*)malloc(sizeof(char) * (BUFF_SIZE + 1)))
-			== NULL)
-		return (-1);
-	if (fd != current_fd)
-		buffer[0] = '\0';
-	current_fd = fd;
-	*line = ft_strnew(0);
-	return (normidead(buffer, read_ret, line, fd));
+	fd_lst(&head, &lst, fd);
+	while (lst->rd != 0)
+	{
+		i = -1;
+		while (lst->str[++i])
+			if (lst->str[i] == '\n')
+			{
+				*line = ft_line(&lst->str, i, i, i);
+				return (1);
+			}
+		if ((i = fd_read(i, buff, &lst, line)) != 2)
+			return (i);
+	}
+	return (0);
 }
